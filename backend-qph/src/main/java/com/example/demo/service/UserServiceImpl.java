@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.*;
+import com.example.demo.dto.CreateUserRequest;
+import com.example.demo.dto.UpdateUserRequest;
+import com.example.demo.dto.UserResponse;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.UserRepository;
@@ -37,7 +39,8 @@ public class UserServiceImpl
 
     @Override
     @Transactional(readOnly = true)
-    public UserResponse findById(Long id) {
+    public UserResponse findById(
+            Long id) {
 
         return toResponse(
                 findEntity(id)
@@ -105,16 +108,14 @@ public class UserServiceImpl
                 userRepository.save(user);
 
         /*
-         * Primer correo:
-         * cuenta creada.
+         * El correo es una notificación.
+         * Un fallo SMTP no revierte la creación
+         * del usuario porque MailService no
+         * propaga la excepción.
          */
         mailService
                 .sendAccountCreated(user);
 
-        /*
-         * Segundo correo:
-         * Microsoft Authenticator.
-         */
         if (Boolean.TRUE.equals(
                 user.getTwoFactorEnabled())) {
 
@@ -190,9 +191,6 @@ public class UserServiceImpl
             );
         }
 
-        /*
-         * Se está activando 2FA.
-         */
         if (!was2FaEnabled
                 && will2FaEnabled) {
 
@@ -201,9 +199,6 @@ public class UserServiceImpl
             );
         }
 
-        /*
-         * Se está desactivando 2FA.
-         */
         if (was2FaEnabled
                 && !will2FaEnabled) {
 
@@ -217,10 +212,6 @@ public class UserServiceImpl
         user =
                 userRepository.save(user);
 
-        /*
-         * Si se acaba de habilitar,
-         * enviar nuevo QR.
-         */
         if (!was2FaEnabled
                 && will2FaEnabled) {
 
@@ -232,7 +223,8 @@ public class UserServiceImpl
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(
+            Long id) {
 
         UserEntity user =
                 findEntity(id);
@@ -258,7 +250,6 @@ public class UserServiceImpl
                 .sendAuthenticatorSetup(
                         user,
                         user.getTotpSecret(),
-                        otpAuthUri,
                         qr
                 );
     }
@@ -281,10 +272,18 @@ public class UserServiceImpl
 
         return UserResponse.builder()
                 .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .enabled(user.getEnabled())
+                .username(
+                        user.getUsername()
+                )
+                .email(
+                        user.getEmail()
+                )
+                .role(
+                        user.getRole()
+                )
+                .enabled(
+                        user.getEnabled()
+                )
                 .twoFactorEnabled(
                         user.getTwoFactorEnabled()
                 )

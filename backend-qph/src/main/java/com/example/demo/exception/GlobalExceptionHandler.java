@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -127,6 +128,25 @@ public class GlobalExceptionHandler {
                         Map.of(
                                 "error",
                                 ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            NoResourceFoundException.class
+    )
+    public ResponseEntity<Map<String, String>>
+    handleNoResourceFound(
+            NoResourceFoundException ex) {
+
+        return ResponseEntity
+                .status(
+                        HttpStatus.NOT_FOUND
+                )
+                .body(
+                        Map.of(
+                                "error",
+                                "Recurso no encontrado"
                         )
                 );
     }

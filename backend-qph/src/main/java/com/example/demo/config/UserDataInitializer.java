@@ -26,7 +26,7 @@ public class UserDataInitializer implements CommandLineRunner {
                                     "admin123"
                             )
                     )
-                    .email("producthub194@gmail.com")
+                    .email("molalla96mh@gmail.com")
                     .role(Role.ADMIN)
                     .enabled(true)
                     .twoFactorEnabled(false)

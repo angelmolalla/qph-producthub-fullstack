@@ -7,6 +7,7 @@ import com.example.demo.exception.TwoFactorAuthenticationException;
 import com.example.demo.repository.TwoFactorChallengeRepository;
 import com.example.demo.security.TotpService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TwoFactorService {
 
     private final TwoFactorChallengeRepository challengeRepository;
@@ -38,7 +40,9 @@ public class TwoFactorService {
             UserEntity user) {
 
         challengeRepository
-                .deleteByUser_Id(user.getId());
+                .deleteByUser_Id(
+                        user.getId()
+                );
 
         UUID challengeId =
                 UUID.randomUUID();
@@ -66,12 +70,23 @@ public class TwoFactorService {
                         .used(false)
                         .build();
 
-        challengeRepository.save(challenge);
-
-        mailService.sendEmailOtp(
-                user,
-                emailOtp
+        challengeRepository.save(
+                challenge
         );
+
+        boolean emailSent =
+                mailService.sendEmailOtp(
+                        user,
+                        emailOtp
+                );
+
+        if (!emailSent) {
+            log.warn(
+                    "No se pudo enviar OTP por correo al usuario '{}'. "
+                            + "El challenge continúa válido para TOTP.",
+                    user.getUsername()
+            );
+        }
 
         return challenge;
     }
@@ -84,21 +99,24 @@ public class TwoFactorService {
 
         TwoFactorChallenge challenge =
                 challengeRepository
-                        .findById(challengeId)
+                        .findById(
+                                challengeId
+                        )
                         .orElseThrow(() ->
                                 new TwoFactorAuthenticationException(
                                         "Challenge 2FA inválido"
                                 )
                         );
 
-        validateChallenge(challenge);
+        validateChallenge(
+                challenge
+        );
 
         boolean valid;
 
         switch (type) {
 
             case EMAIL_AUTH ->
-
                     valid =
                             otpHashService.matches(
                                     challenge.getId(),
@@ -127,28 +145,42 @@ public class TwoFactorService {
         if (!valid) {
 
             int attempts =
-                    challenge.getAttempts() + 1;
+                    challenge.getAttempts()
+                            + 1;
 
-            challenge.setAttempts(attempts);
+            challenge.setAttempts(
+                    attempts
+            );
 
-            if (attempts >= maxAttempts) {
-                challenge.setUsed(true);
+            if (attempts
+                    >= maxAttempts) {
+
+                challenge.setUsed(
+                        true
+                );
             }
 
-            challengeRepository.save(challenge);
+            challengeRepository.save(
+                    challenge
+            );
 
             throw new TwoFactorAuthenticationException(
                     "Código 2FA incorrecto. Intentos restantes: "
                             + Math.max(
                             0,
-                            maxAttempts - attempts
+                            maxAttempts
+                                    - attempts
                     )
             );
         }
 
-        challenge.setUsed(true);
+        challenge.setUsed(
+                true
+        );
 
-        challengeRepository.save(challenge);
+        challengeRepository.save(
+                challenge
+        );
 
         return challenge.getUser();
     }
@@ -166,7 +198,9 @@ public class TwoFactorService {
 
         if (challenge
                 .getExpiresAt()
-                .isBefore(Instant.now())) {
+                .isBefore(
+                        Instant.now()
+                )) {
 
             throw new TwoFactorAuthenticationException(
                     "El código 2FA ha expirado"
@@ -196,7 +230,9 @@ public class TwoFactorService {
 
         return String.format(
                 "%06d",
-                secureRandom.nextInt(1_000_000)
+                secureRandom.nextInt(
+                        1_000_000
+                )
         );
     }
 }

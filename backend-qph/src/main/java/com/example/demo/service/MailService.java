@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.entity.UserEntity;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,79 +12,77 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private final EmailTemplateService emailTemplateService;
 
     @Value("${app.mail.from}")
     private String from;
 
-    public void sendAccountCreated(
+    public boolean sendAccountCreated(
             UserEntity user) {
 
-        sendHtml(
-                user.getEmail(),
-                "Cuenta creada - QPH",
-                """
-                <h2>Tu cuenta ha sido creada</h2>
+        try {
+            String html =
+                    emailTemplateService
+                            .accountCreated(user);
 
-                <p>Hola %s,</p>
+            return sendHtml(
+                    user.getEmail(),
+                    "Bienvenido a QPH ProductHub",
+                    html
+            );
 
-                <p>Tu cuenta fue creada correctamente.</p>
+        } catch (Exception ex) {
 
-                <p>
-                    <strong>Usuario:</strong> %s
-                </p>
+            log.error(
+                    "No se pudo preparar el correo de cuenta creada para {}",
+                    maskEmail(user.getEmail()),
+                    ex
+            );
 
-                <p>
-                    Ya puedes iniciar sesión en la aplicación.
-                </p>
-                """.formatted(
-                        user.getUsername(),
-                        user.getUsername()
-                )
-        );
+            return false;
+        }
     }
 
-    public void sendEmailOtp(
+    public boolean sendEmailOtp(
             UserEntity user,
             String otp) {
 
-        sendHtml(
-                user.getEmail(),
-                "Código de verificación - QPH",
-                """
-                <h2>Código de verificación</h2>
+        try {
+            String html =
+                    emailTemplateService
+                            .emailOtp(
+                                    user,
+                                    otp
+                            );
 
-                <p>Hola %s,</p>
+            return sendHtml(
+                    user.getEmail(),
+                    "Código de verificación - QPH ProductHub",
+                    html
+            );
 
-                <p>Tu código OTP es:</p>
+        } catch (Exception ex) {
 
-                <h1>%s</h1>
+            log.error(
+                    "No se pudo preparar el correo OTP para {}",
+                    maskEmail(user.getEmail()),
+                    ex
+            );
 
-                <p>
-                    Este código expira en 5 minutos.
-                </p>
-
-                <p>
-                    Si no intentaste iniciar sesión,
-                    ignora este mensaje.
-                </p>
-                """.formatted(
-                        user.getUsername(),
-                        otp
-                )
-        );
+            return false;
+        }
     }
 
-    public void sendAuthenticatorSetup(
+    public boolean sendAuthenticatorSetup(
             UserEntity user,
             String secret,
-            String otpAuthUri,
             byte[] qrImage) {
 
         try {
-
             MimeMessage message =
                     mailSender.createMimeMessage();
 
@@ -96,73 +95,62 @@ public class MailService {
 
             helper.setFrom(from);
             helper.setTo(user.getEmail());
-
             helper.setSubject(
-                    "Configura Microsoft Authenticator - QPH"
+                    "Configura tu autenticador - QPH ProductHub"
             );
 
+            String html =
+                    emailTemplateService
+                            .authenticatorSetup(
+                                    user,
+                                    secret
+                            );
+
             helper.setText(
-                    """
-                    <h2>Configura tu autenticador</h2>
-
-                    <p>Hola %s,</p>
-
-                    <p>
-                        La autenticación de dos factores
-                        está habilitada para tu cuenta.
-                    </p>
-
-                    <p>
-                        Abre Microsoft Authenticator y
-                        escanea el código QR adjunto.
-                    </p>
-
-                    <p>
-                        Si no puedes escanearlo,
-                        utiliza esta clave manual:
-                    </p>
-
-                    <p>
-                        <strong>%s</strong>
-                    </p>
-
-                    <p>
-                        Al iniciar sesión podrás utilizar
-                        tanto el código enviado por correo
-                        como el código generado por
-                        Microsoft Authenticator.
-                    </p>
-                    """.formatted(
-                            user.getUsername(),
-                            secret
-                    ),
+                    html,
                     true
             );
 
-            helper.addAttachment(
-                    "qph-authenticator-qr.png",
-                    new ByteArrayResource(qrImage),
+            helper.addInline(
+                    "authenticatorQr",
+                    new ByteArrayResource(
+                            qrImage
+                    ),
                     "image/png"
             );
 
             mailSender.send(message);
 
-        } catch (Exception e) {
-
-            throw new IllegalStateException(
-                    "No se pudo enviar configuración TOTP",
-                    e
+            log.info(
+                    "Correo de configuración TOTP enviado a {}",
+                    maskEmail(user.getEmail())
             );
+
+            return true;
+
+        } catch (Exception ex) {
+
+            log.error(
+                    "No se pudo enviar el correo de configuración TOTP a {}",
+                    maskEmail(user.getEmail()),
+                    ex
+            );
+
+            /*
+             * El fallo del proveedor SMTP no debe
+             * revertir la creación/actualización
+             * del usuario.
+             */
+            return false;
         }
     }
 
-    private void sendHtml(
+    private boolean sendHtml(
             String to,
             String subject,
             String html) {
 
         try {
-
             MimeMessage message =
                     mailSender.createMimeMessage();
 
@@ -176,16 +164,64 @@ public class MailService {
             helper.setFrom(from);
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(html, true);
+            helper.setText(
+                    html,
+                    true
+            );
 
             mailSender.send(message);
 
-        } catch (Exception e) {
-
-            throw new IllegalStateException(
-                    "No se pudo enviar correo a " + to,
-                    e
+            log.info(
+                    "Correo '{}' enviado a {}",
+                    subject,
+                    maskEmail(to)
             );
+
+            return true;
+
+        } catch (Exception ex) {
+
+            log.error(
+                    "No se pudo enviar el correo '{}' a {}",
+                    subject,
+                    maskEmail(to),
+                    ex
+            );
+
+            /*
+             * No propagamos la excepción:
+             * SMTP es una dependencia externa y
+             * no debe tumbar la transacción de negocio.
+             */
+            return false;
         }
+    }
+
+    private String maskEmail(
+            String email) {
+
+        if (email == null
+                || !email.contains("@")) {
+            return "***";
+        }
+
+        int at = email.indexOf('@');
+
+        String local =
+                email.substring(
+                        0,
+                        at
+                );
+
+        String domain =
+                email.substring(at);
+
+        if (local.length() <= 2) {
+            return "**" + domain;
+        }
+
+        return local.substring(0, 2)
+                + "***"
+                + domain;
     }
 }
