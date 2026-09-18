@@ -2,18 +2,23 @@ package com.example.demo.service;
 
 import com.example.demo.entity.Role;
 import com.example.demo.entity.UserEntity;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.test.util.ReflectionTestUtils;
+
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 class EmailTemplateServiceTest {
 
-    private EmailTemplateService service;
+    private EmailTemplateServiceImpl service;
+
 
     @BeforeEach
     void setUp() {
@@ -41,6 +46,7 @@ class EmailTemplateServiceTest {
                 false
         );
 
+
         SpringTemplateEngine engine =
                 new SpringTemplateEngine();
 
@@ -48,10 +54,12 @@ class EmailTemplateServiceTest {
                 resolver
         );
 
+
         service =
-                new EmailTemplateService(
+                new EmailTemplateServiceImpl(
                         engine
                 );
+
 
         ReflectionTestUtils.setField(
                 service,
@@ -66,6 +74,7 @@ class EmailTemplateServiceTest {
         );
     }
 
+
     @Test
     void shouldRenderAccountCreatedTemplate() {
 
@@ -73,6 +82,7 @@ class EmailTemplateServiceTest {
                 service.accountCreated(
                         user()
                 );
+
 
         assertThat(html)
                 .contains(
@@ -86,6 +96,7 @@ class EmailTemplateServiceTest {
                 );
     }
 
+
     @Test
     void shouldRenderOtpTemplate() {
 
@@ -94,6 +105,7 @@ class EmailTemplateServiceTest {
                         user(),
                         "123456"
                 );
+
 
         assertThat(html)
                 .contains(
@@ -107,6 +119,7 @@ class EmailTemplateServiceTest {
                 );
     }
 
+
     @Test
     void shouldRenderAuthenticatorTemplate() {
 
@@ -115,6 +128,7 @@ class EmailTemplateServiceTest {
                         user(),
                         "SECRET123"
                 );
+
 
         assertThat(html)
                 .contains(
@@ -128,17 +142,32 @@ class EmailTemplateServiceTest {
                 );
     }
 
+
     private UserEntity user() {
 
         return UserEntity.builder()
                 .id(1L)
-                .username("angelo")
-                .email("angelo@example.com")
-                .password("encoded")
-                .role(Role.USER)
-                .enabled(true)
-                .twoFactorEnabled(true)
-                .totpSecret("SECRET123")
+                .username(
+                        "angelo"
+                )
+                .email(
+                        "angelo@example.com"
+                )
+                .password(
+                        "encoded"
+                )
+                .role(
+                        Role.USER
+                )
+                .enabled(
+                        true
+                )
+                .twoFactorEnabled(
+                        true
+                )
+                .totpSecret(
+                        "SECRET123"
+                )
                 .build();
     }
 }

@@ -28,13 +28,13 @@ class MailServiceTest {
     @Mock
     private EmailTemplateService emailTemplateService;
 
-    private MailService service;
+    private MailServiceImpl service;
 
     @BeforeEach
     void setUp() {
 
         service =
-                new MailService(
+                new MailServiceImpl(
                         mailSender,
                         emailTemplateService
                 );

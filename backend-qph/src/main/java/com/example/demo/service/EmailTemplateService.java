@@ -1,97 +1,20 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.UserEntity;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
-import java.time.Year;
-import java.util.Locale;
+public interface EmailTemplateService {
 
-@Service
-@RequiredArgsConstructor
-public class EmailTemplateService {
+    String accountCreated(
+            UserEntity user
+    );
 
-    private final SpringTemplateEngine templateEngine;
-
-    @Value("${app.frontend.url:http://localhost:4200}")
-    private String frontendUrl;
-
-    @Value("${app.2fa.expiration-seconds:300}")
-    private long otpExpirationSeconds;
-
-    public String accountCreated(UserEntity user) {
-        Context context = baseContext(user);
-        context.setVariable("frontendUrl", frontendUrl);
-
-        return templateEngine.process(
-                "email/account-created",
-                context
-        );
-    }
-
-    public String emailOtp(
+    String emailOtp(
             UserEntity user,
-            String otp) {
+            String otp
+    );
 
-        Context context = baseContext(user);
-
-        context.setVariable("otp", otp);
-        context.setVariable(
-                "expirationMinutes",
-                Math.max(1, otpExpirationSeconds / 60)
-        );
-
-        return templateEngine.process(
-                "email/email-otp",
-                context
-        );
-    }
-
-    public String authenticatorSetup(
+    String authenticatorSetup(
             UserEntity user,
-            String secret) {
-
-        Context context = baseContext(user);
-
-        context.setVariable("secret", secret);
-
-        return templateEngine.process(
-                "email/authenticator-setup",
-                context
-        );
-    }
-
-    private Context baseContext(
-            UserEntity user) {
-
-        Context context =
-                new Context(
-                        Locale.forLanguageTag("es")
-                );
-
-        context.setVariable(
-                "username",
-                user.getUsername()
-        );
-
-        context.setVariable(
-                "email",
-                user.getEmail()
-        );
-
-        context.setVariable(
-                "currentYear",
-                Year.now().getValue()
-        );
-
-        context.setVariable(
-                "appName",
-                "QPH ProductHub"
-        );
-
-        return context;
-    }
+            String secret
+    );
 }

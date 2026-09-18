@@ -41,7 +41,7 @@ class TwoFactorServiceTest {
     private MailService mailService;
 
     @InjectMocks
-    private TwoFactorService service;
+    private TwoFactorServiceImpl service;
 
     @BeforeEach
     void setUp() {

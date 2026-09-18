@@ -10,13 +10,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class OtpHashServiceTest {
 
-    private OtpHashService service;
+    private OtpHashServiceImpl service;
 
     @BeforeEach
     void setUp() {
 
         service =
-                new OtpHashService();
+                new OtpHashServiceImpl();
 
         ReflectionTestUtils.setField(
                 service,
