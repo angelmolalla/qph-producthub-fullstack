@@ -1,0 +1,364 @@
+<div class="login-page">
+  <div class="login-left">
+
+    <div class="login-logo">
+
+      <div class="logo-mark">
+        <i class="pi pi-box"></i>
+      </div>
+
+      <span>ProductHub</span>
+
+    </div>
+
+
+    <div class="brand">
+
+      <div class="brand-eyebrow">
+        <span>
+          Plataforma de inventario
+        </span>
+      </div>
+
+      <h1>
+        Gestiona con<br>
+        <em>precisión</em><br>
+        y control
+      </h1>
+
+      <p>
+        Una experiencia diseñada para
+        equipos que exigen eficiencia,
+        seguridad y visibilidad total
+        sobre su operación.
+      </p>
+
+    </div>
+
+
+    <div class="features">
+
+      <div class="feature-item">
+
+        <span class="feature-num">
+          01
+        </span>
+
+        <span>
+          Control total de inventario
+        </span>
+
+        <i class="pi pi-arrow-right"></i>
+
+      </div>
+
+
+      <div class="feature-item">
+
+        <span class="feature-num">
+          02
+        </span>
+
+        <span>
+          Autenticación JWT
+        </span>
+
+        <i class="pi pi-arrow-right"></i>
+
+      </div>
+
+
+      <div class="feature-item">
+
+        <span class="feature-num">
+          03
+        </span>
+
+        <span>
+          Autenticación multifactor
+        </span>
+
+        <i class="pi pi-shield"></i>
+
+      </div>
+
+    </div>
+
+    <div class="deco-number">
+      P
+    </div>
+
+  </div>
+
+  <div class="login-right">
+
+    <div class="login-card">
+      @if (step === 'LOGIN') {
+
+      <div class="login-header">
+
+        <div class="header-tag">
+          Acceso seguro
+        </div>
+
+        <h2>
+          Bienvenido
+        </h2>
+
+        <p>
+          Ingresa tus credenciales
+          para continuar
+        </p>
+
+      </div>
+
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+        <div class="field-group">
+
+          <label for="username">
+
+            <i class="pi pi-user"></i>
+
+            Usuario
+
+          </label>
+
+          <input pInputText id="username" formControlName="username" placeholder="Ingresa tu usuario"
+            autocomplete="username" />
+
+          @if (
+          loginForm.get('username')?.invalid &&
+          loginForm.get('username')?.touched
+          ) {
+
+          <small class="field-error">
+
+            <i class="pi pi-exclamation-circle"></i>
+
+            El usuario es requerido
+
+          </small>
+
+          }
+
+        </div>
+
+        <div class="field-group">
+
+          <label>
+
+            <i class="pi pi-lock"></i>
+
+            Contraseña
+
+          </label>
+
+          <p-password formControlName="password" placeholder="Ingresa tu contraseña" [feedback]="false"
+            [toggleMask]="true" styleClass="w-full" inputStyleClass="w-full" />
+
+        </div>
+
+
+        @if (errorMessage) {
+
+        <div class="error-banner">
+
+          <i class="pi pi-times-circle"></i>
+
+          {{ errorMessage }}
+
+        </div>
+
+        }
+
+
+        <p-button type="submit" label="Iniciar Sesión" icon="pi pi-sign-in" styleClass="login-btn" [loading]="loading"
+          [disabled]="loginForm.invalid" />
+
+
+        <div class="form-footer">
+
+          Acceso restringido
+
+          <span>·</span>
+
+          Solo usuarios autorizados
+
+        </div>
+
+      </form>
+
+      }
+
+      @if (step === 'TWO_FACTOR') {
+
+      <div class="login-header">
+
+        <div class="header-tag">
+          Segundo factor
+        </div>
+
+        <h2>
+          Verificación
+        </h2>
+
+        <p>
+          Elige cómo deseas validar
+          tu identidad
+        </p>
+
+      </div>
+
+
+      <div class="two-factor-options">
+
+        <button type="button" class="factor-option" [class.active]="
+              twoFactorType ===
+              'EMAIL_AUTH'
+            " (click)="
+              selectType(
+                'EMAIL_AUTH'
+              )
+            ">
+
+          <i class="pi pi-envelope"></i>
+
+          <div>
+
+            <strong>
+              Correo
+            </strong>
+
+            <span>
+              Código recibido por email
+            </span>
+
+          </div>
+
+        </button>
+
+
+        <button type="button" class="factor-option" [class.active]="
+              twoFactorType ===
+              'TOTP_AUTH'
+            " (click)="
+              selectType(
+                'TOTP_AUTH'
+              )
+            ">
+
+          <i class="pi pi-mobile"></i>
+
+          <div>
+
+            <strong>
+              Authenticator
+            </strong>
+
+            <span>
+              Microsoft Authenticator
+            </span>
+
+          </div>
+
+        </button>
+
+      </div>
+
+
+      <form [formGroup]="twoFactorForm" (ngSubmit)="verifyTwoFactor()" class="login-form">
+
+        <div class="field-group">
+
+          <label>
+
+            <i class="pi pi-key"></i>
+
+            Código de verificación
+
+          </label>
+
+          <input pInputText formControlName="code" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+            placeholder="000000" class="otp-input" />
+
+
+          @if (
+          twoFactorForm.get('code')?.invalid &&
+          twoFactorForm.get('code')?.touched
+          ) {
+
+          <small class="field-error">
+
+            Ingresa un código
+            válido de 6 dígitos
+
+          </small>
+
+          }
+
+        </div>
+
+
+        <div class="factor-info">
+
+          @if (
+          twoFactorType ===
+          'EMAIL_AUTH'
+          ) {
+
+          <i class="pi pi-envelope"></i>
+
+          <span>
+            Usa el código enviado
+            a tu correo electrónico.
+          </span>
+
+          } @else {
+
+          <i class="pi pi-mobile"></i>
+
+          <span>
+            Usa el código actual
+            de Microsoft Authenticator.
+          </span>
+
+          }
+
+        </div>
+
+
+        @if (errorMessage) {
+        <div class="error-banner">
+
+          <i class="pi pi-times-circle"></i>
+
+          {{ errorMessage }}
+
+        </div>
+        }
+
+
+        <p-button type="submit" label="Verificar" icon="pi pi-shield" styleClass="login-btn" [loading]="loading"
+          [disabled]="
+              twoFactorForm.invalid
+            " />
+
+
+        <button type="button" class="back-button" (click)="backToLogin()">
+
+          <i class="pi pi-arrow-left"></i>
+
+          Volver al inicio de sesión
+
+        </button>
+
+      </form>
+      }
+
+    </div>
+
+  </div>
+
+</div>

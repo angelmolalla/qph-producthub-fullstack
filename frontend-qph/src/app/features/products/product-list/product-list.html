@@ -1,0 +1,466 @@
+<div class="list-page">
+
+  <p-toast />
+
+  <p-confirmDialog />
+
+  <div class="page-header">
+
+    <div class="header-left">
+
+      <div class="header-icon">
+
+        <i class="pi pi-box"></i>
+
+      </div>
+
+
+      <div class="header-text">
+
+        <h1>
+          Productos
+        </h1>
+
+        <p>
+
+          {{ products.length }}
+
+          producto{{
+          products.length !== 1
+          ? 's'
+          : ''
+          }}
+
+          registrado{{
+          products.length !== 1
+          ? 's'
+          : ''
+          }}
+
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="header-actions">
+
+
+      @if (isAdmin) {
+
+      <p-button label="Usuarios" icon="pi pi-users" [outlined]="true" pTooltip="Administrar usuarios"
+        (onClick)="goToUsers()" />
+
+
+      <p-button label="Nuevo Producto" icon="pi pi-plus" styleClass="new-btn" (onClick)="goToCreate()" />
+
+      }
+
+
+      <p-button icon="pi pi-sign-out" [text]="true" severity="secondary" pTooltip="Cerrar sesión" tooltipPosition="left"
+        (onClick)="logout()" />
+
+    </div>
+
+  </div>
+
+  <div class="table-card">
+
+    <p-table [value]="products" [loading]="loading" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[
+        5,
+        10,
+        20
+      ]" styleClass="p-datatable-sm" [tableStyle]="{
+        'min-width': '55rem'
+      }" [rowHover]="true">
+
+
+      <ng-template pTemplate="header">
+
+        <tr>
+
+          <th pSortableColumn="id" style="width: 80px">
+
+            ID
+
+            <p-sortIcon field="id" />
+
+          </th>
+
+
+          <th pSortableColumn="nombre">
+
+            Nombre
+
+            <p-sortIcon field="nombre" />
+
+          </th>
+
+
+          <th pSortableColumn="precio" style="width: 160px">
+
+            Precio
+
+            <p-sortIcon field="precio" />
+
+          </th>
+
+
+          <th pSortableColumn="stock" style="width: 140px">
+
+            Stock
+
+            <p-sortIcon field="stock" />
+
+          </th>
+
+
+          <th style="
+              width: 170px;
+              text-align: center;
+            ">
+
+            Acciones
+
+          </th>
+
+        </tr>
+
+      </ng-template>
+
+      <ng-template pTemplate="body" let-product>
+
+        <tr>
+
+          <td>
+
+            <span class="id-badge">
+
+              #{{ product.id }}
+
+            </span>
+
+          </td>
+
+          <td>
+
+            <div class="product-name">
+
+              <i class="pi pi-tag"></i>
+
+              {{ product.nombre }}
+
+            </div>
+
+          </td>
+
+          <td>
+
+            <span class="price-value">
+
+              {{
+              product.precio
+              | currency:'USD'
+              }}
+
+            </span>
+
+          </td>
+
+
+          <!-- STOCK -->
+
+          <td>
+
+            <p-tag [value]="
+                product.stock
+                + ''
+              " [severity]="
+                getStockSeverity(
+                  product.stock
+                )
+              " />
+
+          </td>
+          <td>
+
+            <div class="action-buttons">
+              <p-button icon="pi pi-shopping-cart" [rounded]="true" [text]="true" severity="success" pTooltip="Vender"
+                [disabled]="
+                  product.stock <= 0
+                " (onClick)="
+                  openSale(product)
+                " />
+              @if (isAdmin) {
+
+              <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="info" pTooltip="Editar" (onClick)="
+                    goToEdit(
+                      product.id
+                    )
+                  " />
+
+              <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" pTooltip="Eliminar"
+                (onClick)="
+                    confirmDelete(
+                      product
+                    )
+                  " />
+
+              }
+            </div>
+
+          </td>
+
+        </tr>
+
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+
+        <tr>
+
+          <td colspan="5">
+
+            <div class="empty-state">
+
+              <i class="pi pi-inbox"></i>
+
+
+              <span>
+
+                No hay productos
+                registrados
+
+              </span>
+
+
+              @if (isAdmin) {
+
+              <p-button label="Crear primer producto" icon="pi pi-plus" [text]="true" (onClick)="goToCreate()" />
+
+              }
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      </ng-template>
+
+    </p-table>
+
+  </div>
+
+
+
+  <!-- ====================================================== -->
+  <!-- DIALOG VENTA                                           -->
+  <!-- ====================================================== -->
+
+  <p-dialog [(visible)]="saleDialogVisible" [modal]="true" [closable]="!saleLoading" [dismissableMask]="!saleLoading"
+    [draggable]="false" [resizable]="false" [style]="{
+      width: '480px'
+    }" header="Registrar venta" (onHide)="closeSale()">
+
+
+    @if (selectedProduct) {
+
+
+    <form [formGroup]="saleForm" (ngSubmit)="submitSale()" class="sale-form">
+
+
+      <!-- PRODUCTO -->
+
+      <div class="sale-product">
+
+        <div class="sale-product-icon">
+
+          <i class="pi pi-shopping-cart"></i>
+
+        </div>
+
+
+        <div>
+
+          <span class="sale-label">
+
+            Producto
+
+          </span>
+
+
+          <strong>
+
+            {{
+            selectedProduct.nombre
+            }}
+
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- INFORMACIÓN -->
+
+      <div class="sale-summary">
+
+
+        <div>
+
+          <span>
+
+            Precio unitario
+
+          </span>
+
+          <strong>
+
+            {{
+            selectedProduct.precio
+            | currency:'USD'
+            }}
+
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+
+            Stock disponible
+
+          </span>
+
+          <strong>
+
+            {{
+            selectedProduct.stock
+            }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- CANTIDAD -->
+
+      <div class="sale-field">
+
+        <label>
+
+          Cantidad
+
+        </label>
+
+
+        <p-inputNumber formControlName="quantity" [min]="1" [max]="
+              selectedProduct.stock
+            " [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="
+              pi pi-minus
+            " incrementButtonIcon="
+              pi pi-plus
+            " [useGrouping]="false" />
+
+
+        @if (
+        saleForm
+        .controls
+        .quantity
+        .invalid
+        &&
+        saleForm
+        .controls
+        .quantity
+        .touched
+        ) {
+
+        <small class="sale-error">
+
+          La cantidad debe estar
+          entre 1 y
+
+          {{
+          selectedProduct.stock
+          }}.
+
+        </small>
+
+        }
+
+      </div>
+
+
+
+      <!-- TOTAL -->
+
+      <div class="sale-total">
+
+        <span>
+
+          Total de venta
+
+        </span>
+
+        <strong>
+
+          {{
+          saleTotal
+          | currency:'USD'
+          }}
+
+        </strong>
+
+      </div>
+
+
+
+      <!-- MENSAJE -->
+
+      <div class="sale-warning">
+
+        <i class="pi pi-info-circle"></i>
+
+        <span>
+
+          Al confirmar la venta,
+          el stock se descontará
+          inmediatamente.
+
+        </span>
+
+      </div>
+
+
+
+      <!-- ACCIONES -->
+
+      <div class="sale-actions">
+
+
+        <p-button type="button" label="Cancelar" [text]="true" [disabled]="saleLoading" (onClick)="closeSale()" />
+
+
+        <p-button type="submit" label="Confirmar venta" icon="pi pi-check" styleClass="
+              sale-confirm-btn
+            " [loading]="saleLoading" [disabled]="
+              saleForm.invalid
+            " />
+
+      </div>
+
+    </form>
+
+    }
+
+  </p-dialog>
+
+</div>

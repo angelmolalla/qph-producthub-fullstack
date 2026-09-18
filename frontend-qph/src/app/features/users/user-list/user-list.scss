@@ -1,0 +1,757 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap'
+);
+
+$ink: #1a1e24;
+$ink-soft: #22272f;
+$ink-mid: #2a3040;
+
+$gold: #c9a96e;
+$gold-light: #e4c99a;
+$gold-dim: rgba(201, 169, 110, 0.13);
+
+$cream: #f5f0e8;
+
+$muted: #6b7585;
+$muted-lite: #9aa0b0;
+
+$error: #e05252;
+
+.users-page {
+
+  min-height: 100vh;
+
+  background: $ink;
+
+  padding: 2.5rem 3rem;
+
+  font-family:
+    'DM Sans',
+    sans-serif;
+
+  background-image:
+
+    linear-gradient(rgba(201, 169, 110, 0.03) 1px,
+      transparent 1px),
+
+    linear-gradient(90deg,
+      rgba(201, 169, 110, 0.03) 1px,
+      transparent 1px);
+
+  background-size:
+    60px 60px;
+}
+
+.page-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content:
+    space-between;
+
+  margin-bottom: 2rem;
+
+  padding-bottom: 2rem;
+
+  border-bottom:
+    1px solid $gold-dim;
+}
+
+
+.header-left {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 1.25rem;
+
+
+  .header-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    border:
+      1.5px solid $gold;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+
+    i {
+
+      color: $gold;
+
+      font-size: 1.2rem;
+    }
+  }
+
+
+  h1 {
+
+    margin: 0;
+
+    font-family:
+      'Playfair Display',
+      serif;
+
+    font-size: 1.8rem;
+
+    color: $cream;
+  }
+
+
+  p {
+
+    margin:
+      0.2rem 0 0;
+
+    color:
+      $muted-lite;
+
+    font-size:
+      0.72rem;
+
+    letter-spacing:
+      0.08em;
+  }
+}
+
+
+.header-actions {
+
+  display: flex;
+
+  gap: 0.75rem;
+
+  align-items: center;
+}
+
+::ng-deep .new-user-btn {
+
+  background:
+    $gold !important;
+
+  border:
+    none !important;
+
+  color:
+    $ink !important;
+
+  border-radius:
+    4px !important;
+
+  font-family:
+    'DM Sans',
+    sans-serif !important;
+
+  font-size:
+    0.68rem !important;
+
+  letter-spacing:
+    0.15em !important;
+
+  text-transform:
+    uppercase !important;
+
+
+  .p-button-label,
+  .p-button-icon {
+
+    color:
+      $ink !important;
+  }
+
+
+  &:hover {
+
+    background:
+      $gold-light !important;
+  }
+}
+
+.table-card {
+
+  background:
+    $ink-soft;
+
+  border:
+    1px solid $gold-dim;
+
+  border-radius:
+    6px;
+
+  overflow: hidden;
+
+  position: relative;
+
+
+  &::before {
+
+    content: '';
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    right: 0;
+
+    height: 2px;
+
+    background:
+      linear-gradient(90deg,
+        transparent,
+        $gold,
+        transparent);
+
+    z-index: 2;
+  }
+}
+
+::ng-deep .p-datatable {
+
+  background:
+    transparent !important;
+
+  font-family:
+    'DM Sans',
+    sans-serif !important;
+
+
+  .p-datatable-thead>tr>th {
+
+    background:
+      $ink-mid !important;
+
+    color:
+      $muted-lite !important;
+
+    border:
+      none !important;
+
+    border-bottom:
+      1px solid $gold-dim !important;
+
+    padding:
+      1rem 1.25rem !important;
+
+    font-size:
+      0.62rem !important;
+
+    font-weight:
+      500 !important;
+
+    text-transform:
+      uppercase !important;
+
+    letter-spacing:
+      0.18em !important;
+  }
+
+
+  .p-datatable-tbody>tr {
+
+    background:
+      transparent !important;
+
+    border-bottom:
+      1px solid rgba(201,
+        169,
+        110,
+        0.05) !important;
+
+
+    &:hover {
+
+      background:
+        rgba(201,
+          169,
+          110,
+          0.04) !important;
+    }
+
+
+    td {
+
+      border:
+        none !important;
+
+      padding:
+        1rem 1.25rem !important;
+
+      color:
+        $cream !important;
+
+      font-size:
+        0.85rem !important;
+    }
+  }
+
+
+  .p-paginator {
+
+    background:
+      $ink-mid !important;
+
+    border-top:
+      1px solid $gold-dim !important;
+
+    color:
+      $muted-lite !important;
+  }
+}
+
+.username {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.6rem;
+
+  color:
+    $cream;
+
+
+  i {
+
+    color:
+      $gold;
+
+    opacity:
+      0.6;
+  }
+}
+
+.actions {
+
+  display: flex;
+
+  gap: 0.2rem;
+}
+
+.empty {
+
+  padding: 3rem;
+
+  text-align: center;
+
+  color:
+    $muted;
+
+
+  i {
+
+    color:
+      $gold;
+
+    margin-right:
+      0.5rem;
+  }
+}
+
+::ng-deep .p-dialog {
+
+  background:
+    $ink-soft !important;
+
+  border:
+    1px solid $gold-dim !important;
+
+  border-radius:
+    6px !important;
+
+  color:
+    $cream !important;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.45) !important;
+
+
+  .p-dialog-header {
+
+    background:
+      $ink-mid !important;
+
+    color:
+      $cream !important;
+
+    border-bottom:
+      1px solid $gold-dim !important;
+
+
+    .p-dialog-title {
+
+      font-family:
+        'Playfair Display',
+        serif;
+
+      font-size:
+        1.35rem;
+
+      color:
+        $cream;
+    }
+
+
+    .p-dialog-header-close {
+
+      color:
+        $muted-lite !important;
+
+
+      &:hover {
+
+        background:
+          rgba(201,
+            169,
+            110,
+            0.08) !important;
+
+        color:
+          $gold !important;
+      }
+    }
+  }
+
+
+  .p-dialog-content {
+
+    background:
+      $ink-soft !important;
+
+    color:
+      $cream !important;
+
+    padding:
+      1.5rem !important;
+  }
+}
+
+.user-form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 1.1rem;
+}
+
+
+.field {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.45rem;
+
+
+  label {
+
+    color:
+      $muted-lite;
+
+    font-size:
+      0.68rem;
+
+    font-weight:
+      500;
+
+    letter-spacing:
+      0.12em;
+
+    text-transform:
+      uppercase;
+
+
+    small {
+
+      color:
+        $muted;
+
+      text-transform:
+        none;
+
+      letter-spacing:
+        normal;
+    }
+  }
+
+
+  input {
+
+    width:
+      100%;
+
+    padding:
+      0.85rem 1rem;
+
+    background:
+      rgba(255,
+        255,
+        255,
+        0.04);
+
+    border:
+      1px solid rgba(201,
+        169,
+        110,
+        0.18);
+
+    border-radius:
+      4px;
+
+    color:
+      $cream;
+
+    outline:
+      none;
+
+
+    &:focus {
+
+      border-color:
+        $gold;
+    }
+  }
+}
+
+::ng-deep .user-form {
+
+  .p-password {
+
+    width:
+      100%;
+  }
+
+
+  .p-password-input {
+
+    width:
+      100% !important;
+
+    background:
+      rgba(255,
+        255,
+        255,
+        0.04) !important;
+
+    border:
+      1px solid rgba(201,
+        169,
+        110,
+        0.18) !important;
+
+    color:
+      $cream !important;
+
+    box-shadow:
+      none !important;
+
+
+    &:focus {
+
+      border-color:
+        $gold !important;
+    }
+  }
+
+
+  .p-password-toggle-mask-icon {
+
+    color:
+      $muted-lite !important;
+  }
+}
+
+.select-control {
+
+  width:
+    100%;
+
+  padding:
+    0.85rem 1rem;
+
+  background:
+    rgba(255,
+      255,
+      255,
+      0.04);
+
+  border:
+    1px solid rgba(201,
+      169,
+      110,
+      0.18);
+
+  border-radius:
+    4px;
+
+  color:
+    $cream;
+
+
+  option {
+
+    background:
+      $ink-mid;
+
+    color:
+      $cream;
+  }
+
+
+  &:focus {
+
+    border-color:
+      $gold;
+
+    outline:
+      none;
+  }
+}
+
+.check-row {
+
+  display: flex;
+
+  align-items:
+    flex-start;
+
+  gap:
+    0.75rem;
+
+  padding:
+    0.9rem;
+
+  border:
+    1px solid $gold-dim;
+
+  border-radius:
+    4px;
+
+  background:
+    rgba(255,
+      255,
+      255,
+      0.02);
+
+  cursor:
+    pointer;
+
+
+  input {
+
+    margin-top:
+      0.2rem;
+
+    accent-color:
+      $gold;
+  }
+
+
+  div {
+
+    display: flex;
+
+    flex-direction:
+      column;
+
+    gap:
+      0.2rem;
+  }
+
+
+  strong {
+
+    color:
+      $cream;
+
+    font-size:
+      0.82rem;
+  }
+
+
+  span {
+
+    color:
+      $muted;
+
+    font-size:
+      0.72rem;
+  }
+}
+
+.dialog-actions {
+
+  display:
+    flex;
+
+  justify-content:
+    flex-end;
+
+  gap:
+    0.5rem;
+
+  padding-top:
+    1.25rem;
+
+  margin-top:
+    0.5rem;
+
+  border-top:
+    1px solid $gold-dim;
+}
+
+
+::ng-deep .dialog-actions {
+
+  .p-button:not(.p-button-text) {
+
+    background:
+      $gold !important;
+
+    border:
+      none !important;
+
+    color:
+      $ink !important;
+
+
+    .p-button-label,
+    .p-button-icon {
+
+      color:
+        $ink !important;
+    }
+  }
+
+
+  .p-button.p-button-text {
+
+    color:
+      $muted-lite !important;
+
+
+    &:hover {
+
+      color:
+        $gold !important;
+
+      background:
+        rgba(201,
+          169,
+          110,
+          0.06) !important;
+    }
+  }
+}

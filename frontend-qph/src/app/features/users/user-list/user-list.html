@@ -1,0 +1,234 @@
+<div class="users-page">
+
+  <p-toast />
+
+  <p-confirmDialog />
+
+
+  <div class="page-header">
+
+    <div class="header-left">
+
+      <div class="header-icon">
+        <i class="pi pi-users"></i>
+      </div>
+
+      <div>
+
+        <h1>
+          Usuarios
+        </h1>
+
+        <p>
+          {{ users.length }}
+          usuario{{ users.length !== 1 ? 's' : '' }}
+          registrado{{ users.length !== 1 ? 's' : '' }}
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="header-actions">
+      <p-button label="Productos" icon="pi pi-box" [outlined]="true" (onClick)="goToProducts()" />
+      <p-button label="Nuevo Usuario" icon="pi pi-user-plus" styleClass="new-user-btn" (onClick)="openCreate()" />
+    </div>
+
+  </div>
+
+
+  <div class="table-card">
+    <p-table [value]="users" [loading]="loading" [paginator]="true" [rows]="10" [rowHover]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>2FA</th>
+          <th>
+            Acciones
+          </th>
+        </tr>
+      </ng-template>
+
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            #{{ user.id }}
+          </td>
+          <td>
+            <div class="username">
+              <i class="pi pi-user"></i>
+              {{ user.username }}
+            </div>
+          </td>
+
+
+          <td>
+            {{ user.email || '—' }}
+          </td>
+
+
+          <td>
+            <p-tag [value]="user.role" [severity]="roleSeverity(user.role)" />
+          </td>
+
+
+          <td>
+            <p-tag [value]="
+                user.enabled
+                  ? 'ACTIVO'
+                  : 'INACTIVO'
+              " [severity]="
+                user.enabled
+                  ? 'success'
+                  : 'danger'
+              " />
+          </td>
+
+
+          <td>
+            <p-tag [value]="
+                user.twoFactorEnabled
+                  ? 'HABILITADO'
+                  : 'DESHABILITADO'
+              " [severity]="
+                user.twoFactorEnabled
+                  ? 'success'
+                  : 'secondary'
+              " />
+          </td>
+
+
+          <td>
+
+            <div class="actions">
+              <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" pTooltip="Editar"
+                (onClick)="openEdit(user)" />
+              <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" pTooltip="Eliminar"
+                (onClick)="
+                  confirmDelete(user)
+                " />
+            </div>
+          </td>
+
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">
+            <div class="empty">
+              <i class="pi pi-users"></i>
+              No existen usuarios
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{
+      width: '520px'
+    }" [header]="
+      isEdit
+        ? 'Editar usuario'
+        : 'Nuevo usuario'
+    ">
+
+    <form [formGroup]="form" class="user-form" (ngSubmit)="save()">
+      <div class="field">
+        <label>
+          Usuario
+        </label>
+        <input pInputText formControlName="username" />
+      </div>
+
+
+      <div class="field">
+        <label>
+          Email
+        </label>
+        <input pInputText type="email" formControlName="email" />
+      </div>
+
+
+      <div class="field">
+        <label>
+          Contraseña
+          @if (isEdit) {
+          <small>
+            — dejar vacío para conservarla
+          </small>
+          }
+
+        </label>
+        <p-password formControlName="password" [feedback]="true" [toggleMask]="true" styleClass="w-full"
+          inputStyleClass="w-full" />
+      </div>
+
+      <div class="field">
+
+        <label>
+          Rol
+        </label>
+        <select formControlName="role" class="select-control">
+
+          @for (
+          role of roles;
+          track role
+          ) {
+          <option [value]="role">
+            {{ role }}
+          </option>
+          }
+        </select>
+
+      </div>
+
+
+      @if (isEdit) {
+      <label class="check-row">
+        <input type="checkbox" formControlName="enabled" />
+        <div>
+          <strong>
+            Usuario activo
+          </strong>
+          <span>
+            Permite iniciar sesión
+          </span>
+        </div>
+      </label>
+      }
+
+
+      <label class="check-row">
+        <input type="checkbox" formControlName="twoFactorEnabled" />
+        <div>
+          <strong>
+            Activar autenticación 2FA
+          </strong>
+          <span>
+            Email OTP o Microsoft Authenticator
+          </span>
+        </div>
+      </label>
+
+
+      <div class="dialog-actions">
+        <p-button type="button" label="Cancelar" [text]="true" (onClick)="
+            dialogVisible = false
+          " />
+        <p-button type="submit" [label]="
+            isEdit
+              ? 'Guardar cambios'
+              : 'Crear usuario'
+          " icon="pi pi-check" [loading]="submitting" />
+      </div>
+
+    </form>
+  </p-dialog>
+</div>
